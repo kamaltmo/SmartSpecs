@@ -35,6 +35,74 @@ public class SpecSheet {
         url = "http://www.google.com/search?&sourceid=navclient&btnI=I&q=gsmarena+" + this.model;
     }
 
+
+
+    public void setOS(TextView view) {
+        textView = view;
+        spec = "OS";
+        new Specs().execute();
+    }
+
+    public void setOS(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "OS";
+        new Specs().execute();
+    }
+
+    public void setOS(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "OS";
+        new Specs().execute();
+    }
+
+    public void setChipset(TextView view) {
+        textView = view;
+        spec = "Chipset";
+        new Specs().execute();
+    }
+
+    public void setChipset(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "Chipset";
+        new Specs().execute();
+    }
+
+    public void setChipset(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "Chipset";
+        new Specs().execute();
+    }
+
+    public void setGpu(TextView view) {
+        textView = view;
+        spec = "GPU";
+        new Specs().execute();
+    }
+
+    public void setGpu(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "GPU";
+        new Specs().execute();
+    }
+
+    public void setGPU(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "GPU";
+        new Specs().execute();
+    }
+
     public void setCpu(TextView view) {
         textView = view;
         spec = "CPU";
