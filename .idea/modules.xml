@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/SmartSpecs.iml" filepath="$PROJECT_DIR$/SmartSpecs.iml" />
       <module fileurl="file://$PROJECT_DIR$/SmartSpecs/SmartSpecs-SmartSpecs.iml" filepath="$PROJECT_DIR$/SmartSpecs/SmartSpecs-SmartSpecs.iml" />
-      <module fileurl="file://$PROJECT_DIR$/SmartSpecs2.iml" filepath="$PROJECT_DIR$/SmartSpecs2.iml" />
     </modules>
   </component>
 </project>
