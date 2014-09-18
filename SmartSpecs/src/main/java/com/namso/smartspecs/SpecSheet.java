@@ -20,7 +20,7 @@ import java.io.IOException;
  * Created by Kamal on 14/09/2014.
  */
 public class SpecSheet {
-    Boolean loaded = false;
+    Boolean loaded, first, last = false;
     String model, spec, url, pTitle, pMessage;
     String[] specSheet;
     TextView textView;
@@ -35,7 +35,146 @@ public class SpecSheet {
         url = "http://www.google.com/search?&sourceid=navclient&btnI=I&q=gsmarena+" + this.model;
     }
 
+    public void setWifi(TextView view) {
+        textView = view;
+        spec = "WLAN";
+        first = true;
+        new Specs().execute();
+    }
 
+    public void setWifi(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "WLAN";
+        first = true;
+        new Specs().execute();
+    }
+
+    public void setWifi(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "WLAN";
+        first = true;
+        new Specs().execute();
+    }
+
+    public void setCamera(TextView view) {
+        textView = view;
+        spec = "Primary";
+        first = true;
+        new Specs().execute();
+    }
+
+    public void setCamera(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "Primary";
+        first = true;
+        new Specs().execute();
+    }
+
+    public void setCamera(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "Primary";
+        first = true;
+        new Specs().execute();
+    }
+
+    public void setBluetooth(TextView view) {
+        textView = view;
+        spec = "Bluetooth";
+        new Specs().execute();
+    }
+
+    public void setBluetooth(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "Bluetooth";
+        new Specs().execute();
+    }
+
+    public void setBluetooth(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "Bluetooth";
+        new Specs().execute();
+    }
+
+    public void setNFC(TextView view) {
+        textView = view;
+        spec = "NFC";
+        new Specs().execute();
+    }
+
+    public void setNFC(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "NFC";
+        new Specs().execute();
+    }
+
+    public void setNFC(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "NFC";
+        new Specs().execute();
+    }
+
+    public void setDisplay(TextView view) {
+        textView = view;
+        spec = "Size";
+        new Specs().execute();
+    }
+
+    public void setDisplay(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "Size";
+        new Specs().execute();
+    }
+
+    public void setDisplay(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "Size";
+        new Specs().execute();
+    }
+
+    public void setRam(TextView view) {
+        textView = view;
+        spec = "Internal";
+        last = true;
+        new Specs().execute();
+    }
+
+    public void setRam(TextView view, ProgressBar pBar) {
+        textView = view;
+        progressBar = pBar;
+        spec = "Internal";
+        last = true;
+        new Specs().execute();
+    }
+
+    public void setRam(TextView view, ProgressDialog pDialog, String pTitle, String pMessage) {
+        textView = view;
+        progressDialog = pDialog;
+        this.pTitle = pTitle;
+        this.pMessage = pMessage;
+        spec = "Internal";
+        last = true;
+        new Specs().execute();
+    }
 
     public void setOS(TextView view) {
         textView = view;
@@ -152,12 +291,17 @@ public class SpecSheet {
                     e.printStackTrace();
                 }
 
-                specSheet = new String[page.size()];
 
-                for (int i = 0; i < page.size(); i++) {
-                    specSheet[i] = page.get(i).text();
+                if (page != null) {
+                    specSheet = new String[page.size()];
+                    for (int i = 0; i < page.size(); i++) {
+                        specSheet[i] = page.get(i).text();
+                    }
+                    loaded = true;
+                } else {
+                    specSheet = new String[1];
+                    specSheet[0] = "N/A";
                 }
-                loaded = true;
             }
             return null;
         }
@@ -166,17 +310,25 @@ public class SpecSheet {
         protected void onPostExecute(Void result) {
             Boolean found = false;
             int i = 0;
-            String value = "";
+            String value = "N/A";
 
             while (!found) {
                 if (specSheet[i].equals(spec)) {
                     value = specSheet[i+1];
                     found = true;
-                } else if ( i == specSheet.length - 2) {
+                } else if ( i == specSheet.length - 2 || (specSheet.length - 2 <= 0) ) {
                     break;
                 } else {
                     i = i + 1;
                 }
+            }
+
+            if (last) {
+                value = value.replaceAll("^(.*), ", "");
+                last = false;
+            } else if (first) {
+                value = value.replace(",(.*)", "");
+                first = false;
             }
 
             textView.setText(value);
