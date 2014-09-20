@@ -5,6 +5,7 @@ package com.namso.smartspecs;
  */
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -14,27 +15,40 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 
 /**
  * Created by Kamal on 14/09/2014.
  */
 public class SpecSheet {
-    Boolean loaded, first, last = false;
+
+    Boolean loaded = false, first = false, last = false, save = false;
     String model, spec, url, pTitle, pMessage;
     String[] specSheet;
     TextView textView;
     ProgressBar progressBar = null;
     ProgressDialog progressDialog = null;
     Document doc;
+    Context context;
 
 
-    public SpecSheet (String model) {
+    public SpecSheet (String model, Boolean save, Context context) {
+        this.context = context;
+        this.save = save;
         this.model = model;
         this.model = this.model.replaceAll("\\s","+");
         url = "http://www.google.com/search?&sourceid=navclient&btnI=I&q=gsmarena+" + this.model;
     }
 
+    //Methods that fill a text view with your required specifications
+    //Allow you to send in progress bar or progress dialog to update while data is being retrieved
     public void setWifi(TextView view) {
         textView = view;
         spec = "WLAN";
@@ -265,11 +279,13 @@ public class SpecSheet {
     }
 
 
+    //AsyncTask that retrieves the spec sheet from the internet
     private class Specs extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            //Checks if progress Dialog or progress bar are being used and sets them accordingly
             if (progressDialog != null) {
                 progressDialog.setTitle(pTitle);
                 progressDialog.setMessage(pMessage);
@@ -283,24 +299,62 @@ public class SpecSheet {
         @Override
         protected Void doInBackground(Void ...params){
             Elements page = null;
-            if (!loaded) {
+
+            //Checks if the device details have been previously stored
+            File file = context.getFileStreamPath(model);
+            if (!file.exists()) {
+
+                //If not already loaded or saved retrieves data
+                if (!loaded) {
+                    try {
+                        doc = Jsoup.connect(url).get();
+                        page = doc.select(".nfo, .ttl");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    //Parses the data into an string array
+                    if (page != null) {
+                        specSheet = new String[page.size()];
+                        for (int i = 0; i < page.size(); i++) {
+                            specSheet[i] = page.get(i).text();
+                        }
+                        loaded = true;
+                    } else {
+                        specSheet = new String[1];
+                        specSheet[0] = "N/A";
+                    }
+
+                    //Saves array to file if requested
+                    if (save && loaded) {
+                        String FILENAME = model;
+                        try {
+                            FileOutputStream fOut = context.openFileOutput(FILENAME, context.MODE_APPEND);
+                            ObjectOutputStream oos = new ObjectOutputStream(fOut);
+                            oos.writeObject(specSheet);
+                            oos.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }catch(IOException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            } else {
+                //Retrieves string array from file if save already
+                String FILENAME = model;
                 try {
-                    doc = Jsoup.connect(url).get();
-                    page = doc.select(".nfo, .ttl");
+                    FileInputStream fIn = context.openFileInput(FILENAME);
+                    ObjectInputStream ois = new ObjectInputStream(fIn);
+                    specSheet = (String[]) ois.readObject();
+                    ois.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-
-
-                if (page != null) {
-                    specSheet = new String[page.size()];
-                    for (int i = 0; i < page.size(); i++) {
-                        specSheet[i] = page.get(i).text();
-                    }
-                    loaded = true;
-                } else {
-                    specSheet = new String[1];
-                    specSheet[0] = "N/A";
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
             return null;
@@ -312,6 +366,7 @@ public class SpecSheet {
             int i = 0;
             String value = "N/A";
 
+            //Searches string array for required specification
             while (!found) {
                 if (specSheet[i].equals(spec)) {
                     value = specSheet[i+1];
@@ -331,8 +386,10 @@ public class SpecSheet {
                 first = false;
             }
 
+            //Sets textview to the required value
             textView.setText(value);
 
+            //Changes state of any progress bars
             if (progressDialog != null){
                 progressDialog.dismiss();
             } else if (progressBar != null){
